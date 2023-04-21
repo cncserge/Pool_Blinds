@@ -139,13 +139,6 @@ void loop() {
                     else{
                         state = 3;
                     }
-                    // if((!(pult_close_isRun || pult_open_isRun)) && (currentSpeed > 0)){
-                    //     currentSpeed--;
-                    //     ledcWrite(0, currentSpeed);
-                    // }
-                    // if(currentSpeed == 0){
-                    //     state = 0;
-                    // }
                 }
                 break;
             }
