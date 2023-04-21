@@ -1,95 +1,38 @@
-#include <Arduino.h>
 /*
-   RadioLib CC1101 Receive Example
-
-   This example receives packets using CC1101 FSK radio module.
-   To successfully receive data, the following settings have to be the same
-   on both transmitter and receiver:
-    - carrier frequency
-    - bit rate
-    - frequency deviation
-    - sync word
-
-   For default module settings, see the wiki page
-   https://github.com/jgromes/RadioLib/wiki/Default-configuration#cc1101
-
-   For full API reference, see the GitHub Pages
-   https://jgromes.github.io/RadioLib/
+  Example for receiving
+  
+  https://github.com/sui77/rc-switch/
+  https://github.com/LSatan/SmartRC-CC1101-Driver-Lib
+  If you want to visualize a telegram copy the raw data and 
+  paste it into http://test.sui.li/oszi/
+  ----------------------------------------------------------
+  Mod by Little Satan. Have Fun!
+  ----------------------------------------------------------
 */
-
-// include the library
-#include <RadioLib.h>
-
-// CC1101 has the following connections:
-// CS pin:    10
-// GDO0 pin:  2
-// RST pin:   unused
-// GDO2 pin:  3 (optional)
-CC1101 radio = new Module(10, 2, RADIOLIB_NC, 3);
-
-// or using RadioShield
-// https://github.com/jgromes/RadioShield
-//CC1101 radio = RadioShield.ModuleA;
+#include <ELECHOUSE_CC1101_SRC_DRV.h>
+#include <RCSwitch.h>
+RCSwitch mySwitch = RCSwitch();
 
 void setup() {
-  Serial.begin(9600);
-
-  // initialize CC1101 with default settings
-  Serial.print(F("[CC1101] Initializing ... "));
-  int state = radio.begin();
-  if (state == RADIOLIB_ERR_NONE) {
-    Serial.println(F("success!"));
-  } else {
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-    while (true);
-  }
+    Serial.begin(9600);
+    if (ELECHOUSE_cc1101.getCC1101()){       // Check the CC1101 Spi connection.
+        Serial.println("Connection OK");
+    }
+    else{
+        Serial.println("Connection Error");
+    }
+    //CC1101 Settings:                (Settings with "//" are optional!)
+    ELECHOUSE_cc1101.Init();            // must be set to initialize the cc1101!
+    //ELECHOUSE_cc1101.setRxBW(812.50);  // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.
+    //ELECHOUSE_cc1101.setPA(10);       // set TxPower. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12)   Default is max!
+    ELECHOUSE_cc1101.setMHZ(433.92); // Here you can set your basic frequency. The lib calculates the frequency automatically (default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ. Read More info from datasheet.
+    mySwitch.enableReceive(2);  // Receiver on interrupt 0 => that is pin #2
+    ELECHOUSE_cc1101.SetRx();  // set Receive on
 }
 
 void loop() {
-  Serial.print(F("[CC1101] Waiting for incoming transmission ... "));
-
-  // you can receive data as an Arduino String
-  String str;
-  int state = radio.receive(str);
-
-  // you can also receive data as byte array
-  /*
-    byte byteArr[8];
-    int state = radio.receive(byteArr, 8);
-  */
-
-  if (state == RADIOLIB_ERR_NONE) {
-    // packet was successfully received
-    Serial.println(F("success!"));
-
-    // print the data of the packet
-    Serial.print(F("[CC1101] Data:\t\t"));
-    Serial.println(str);
-
-    // print RSSI (Received Signal Strength Indicator)
-    // of the last received packet
-    Serial.print(F("[CC1101] RSSI:\t\t"));
-    Serial.print(radio.getRSSI());
-    Serial.println(F(" dBm"));
-
-    // print LQI (Link Quality Indicator)
-    // of the last received packet, lower is better
-    Serial.print(F("[CC1101] LQI:\t\t"));
-    Serial.println(radio.getLQI());
-
-  } else if (state == RADIOLIB_ERR_RX_TIMEOUT) {
-    // timeout occurred while waiting for a packet
-    Serial.println(F("timeout!"));
-
-  } else if (state == RADIOLIB_ERR_CRC_MISMATCH) {
-    // packet was received, but is malformed
-    Serial.println(F("CRC error!"));
-
-  } else {
-    // some other error occurred
-    Serial.print(F("failed, code "));
-    Serial.println(state);
-
+  if (mySwitch.available()) {
+    Serial.println(mySwitch.getReceivedValue());
+    mySwitch.resetAvailable();
   }
 }

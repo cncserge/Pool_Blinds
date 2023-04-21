@@ -1,0 +1,12 @@
+
+
+
+       cc1101                                                                       
+1 GND Ground, connecting to power ground reference-----------------> GND                           
+2 VCC Power supply 1.8 V-3.6V DC-----------------------------------> 3V3        
+3 GDO0 Output Information output pin-------------------------------> G2
+4 CSN Input Chip selection pin, for starting a SPI communication---> G5
+5 SCK Input SPI clock pin------------------------------------------> G18
+6 MOSI Input SPI data input pin------------------------------------> G23
+7 MISO/GDO1 Output SPI data output pin-----------------------------> G19
+8 GDO2 Output Information output pin-------------------------------> G4
