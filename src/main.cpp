@@ -11,6 +11,7 @@
 */
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <RCSwitch.h>
+#include <WiFi.h>
 RCSwitch mySwitch = RCSwitch();
 bool pult_open_isRun  = false;
 bool pult_close_isRun = false;
@@ -35,10 +36,17 @@ bool isCodeClose(unsigned long code){
     return false;
 }
 void setup() {
+
+  WiFi.mode(WIFI_AP);
+  IPAddress apIP(192, 168, 0, 10);
+  WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0));
+  WiFi.softAP("Pool_bind", "87654321");
+
+
     Serial.begin(9600);
     { // config GPIO
-        pinMode(in_estop_close, INPUT_PULLUP);
-        pinMode(in_estop_open,  INPUT_PULLUP);
+        pinMode(in_estop_close,  INPUT_PULLUP);
+        pinMode(in_estop_open,   INPUT_PULLUP);
         pinMode(out_relay_close, OUTPUT);
         pinMode(out_relay_open,  OUTPUT);
     }
