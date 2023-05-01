@@ -1,6 +1,6 @@
 ESPUI
-lsatan/SmartRC-CC1101-Driver-Lib@^2.5.7
-esphome/ESPAsyncWebServer-esphome@^2.1.0
-https://github.com/lorol/LITTLEFS.git
 sui77/rc-switch@^2.6.4
+esphome/ESPAsyncWebServer-esphome@^2.1.0
 esphome/AsyncTCP-esphome@^1.2.2
+littlefs_esp32 @ 2.0.0
+lsatan/SmartRC-CC1101-Driver-Lib@^2.5.7
