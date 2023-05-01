@@ -22,8 +22,19 @@ const int in_estop_open = 17;
 const int out_pwm = 13;
 const int out_relay_close = 27;
 const int out_relay_open = 26;
-const int maxSpeed = 255;
-const unsigned long accel = 5UL;
+
+
+
+struct{
+    int startSpeed            = 100;
+    int maxSpeed              = 255;
+    unsigned long accel       = 5;
+    unsigned long maxTimeWork = 60;
+}usDat;
+
+
+
+
 int currentSpeed = 0;
 bool isCodeOpen(unsigned long code)
 {
@@ -84,6 +95,10 @@ void setup()
         ELECHOUSE_cc1101.SetRx();        // set Receive on
     }
 
+
+
+
+
     ESPUI.begin("ESPUI Control");
 }
 
@@ -127,6 +142,21 @@ void loop()
                 pult_open_isRun = false;
             }
         }
+        {
+            static unsigned long t = millis();
+            if (pult_close_isRun || pult_open_isRun)
+            {
+                if (millis() - t >= usDat.maxTimeWork)
+                {
+                    pult_close_isRun = false;
+                    pult_open_isRun = false;
+                }
+            }
+            else{
+                t = millis();
+            }
+        }
+
     }
 
     {
@@ -158,17 +188,17 @@ void loop()
             if (millis() - tim >= 100UL)
             { // time out relay
                 state = 2;
-                currentSpeed = 150;
+                currentSpeed = usDat.startSpeed;
                 tim = millis();
             }
             break;
         }
         case 2:
         {
-            if (millis() - tim >= accel)
+            if (millis() - tim >= usDat.accel)
             {
                 tim = millis();
-                if ((pult_close_isRun || pult_open_isRun) && (currentSpeed < maxSpeed))
+                if ((pult_close_isRun || pult_open_isRun) && (currentSpeed < usDat.maxSpeed))
                 {
                     currentSpeed++;
                     ledcWrite(0, currentSpeed);
@@ -182,7 +212,7 @@ void loop()
         }
         case 3:
         {
-            if (millis() - tim >= accel)
+            if (millis() - tim >= usDat.accel)
             {
                 tim = millis();
                 if ((!(pult_close_isRun || pult_open_isRun)) && (currentSpeed > 0))
